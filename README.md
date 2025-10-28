@@ -1,29 +1,31 @@
 # ML Sales Forecasting
 
-[![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://python.org)
-[![FastAPI](https://img.shields.io/badge/FastAPI-Latest-green.svg)](https://fastapi.tiangolo.com)
+[![Python](https://img.shields.io/badge/Python-3.13+-blue.svg)](https://python.org)
+[![scikit-learn](https://img.shields.io/badge/scikit--learn-Latest-orange.svg)](https://scikit-learn.org)
+[![FastAPI](https://img.shields.io/badge/FastAPI-Ready-green.svg)](https://fastapi.tiangolo.com)
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](Dockerfile)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-> Análise de dados e previsão de preços de imóveis no Reino Unido usando machine learning
+> Sistema completo de previsao de precos de imoveis no Reino Unido usando Random Forest
 
 ## Destaques
 
-- Análise exploratória de 30M+ transações imobiliárias (1995-2025)
-- Amostragem estratificada para representatividade temporal
-- Visualizações e correlações de preços
-- Preparação de dados para modelos preditivos
-- Notebooks documentados passo-a-passo
-- Containerização com Docker
+- Modelo Random Forest com R² = 11.16% (geral) e 27% (imoveis ate £1M)
+- Pipeline completo: EDA → Model Selection → Tuning → Production
+- Feature engineering com postcode_region (2,253 regioes)
+- 4 notebooks Jupyter documentados passo-a-passo
+- Modelo exportado e pronto para API FastAPI
+- 99,831 amostras de treinamento
 
 ## Funcionalidades
 
-- Análise exploratória do dataset UK Property Sales
-- Amostragem sistemática de 100k linhas distribuídas temporalmente
-- Limpeza e transformação de dados
-- Análise de correlação com encoding de variáveis categóricas
-- Visualizações de evolução temporal e distribuição geográfica
-- Identificação de outliers e padrões de mercado
+- Analise exploratoria de 30M+ transacoes imobiliarias (1995-2025)
+- Amostragem estratificada para representatividade temporal
+- Feature engineering avancado (postcode_region, target encoding)
+- Comparacao de 5 modelos ML (Ridge, Random Forest, XGBoost, LightGBM)
+- Hyperparameter tuning com RandomizedSearchCV
+- Exportacao de modelo para producao
+- Cross-validation para validacao robusta
 
 ## Stack Tecnológica
 
@@ -58,7 +60,14 @@ jupyter lab
 
 ### Notebooks
 
-- `etl.ipynb` - Análise exploratória e preparação de dados
+Pipeline completo de ML em 4 notebooks:
+
+1. **01_exploratory_analysis.ipynb** - EDA, amostragem, limpeza
+2. **02_model_selection.ipynb** - Feature engineering, comparacao de 5 modelos
+3. **03_hyperparameter_tuning.ipynb** - Otimizacao com RandomizedSearchCV
+4. **04_pipeline.ipynb** - Treino final e exportacao para producao
+
+Utilitarios:
 - `download_data.py` - Script para baixar dataset do Kaggle
 
 ## Dataset
@@ -131,13 +140,32 @@ ml-sales-forecasting/
 └── LICENSE               # MIT License
 ```
 
-## Próximos Passos
+## Resultados do Modelo
 
-- [ ] Feature engineering avançado (extrair região do postcode)
-- [ ] Modelagem preditiva de preços
-- [ ] Análise de sazonalidade (melhor época para comprar/vender)
-- [ ] Segmentação de mercado por faixa de preço
-- [ ] Dashboard interativo com visualizações
+### Performance
+
+- **R² Geral**: 11.16% (todos os imoveis)
+- **R² <£1M**: 27% (98.6% dos casos)
+- **MAE**: £86,796
+- **Modelo**: Random Forest (100 estimators)
+- **Features**: 6 (property_type, county, postcode_region, old_new, duration, year)
+
+### Feature Importance
+
+As features mais importantes para o modelo:
+1. postcode_region_enc (localizacao granular)
+2. county_enc (condado)
+3. year (epoca da venda)
+4. property_type_enc (tipo do imovel)
+
+## Proximos Passos
+
+- [ ] Implementar API FastAPI com endpoints de predicao
+- [ ] Criar frontend React para interface de usuario
+- [ ] Dockerizar aplicacao completa
+- [ ] Deploy em producao (Render/Railway)
+- [ ] Adicionar mais features (area, numero de quartos)
+- [ ] Dashboard interativo com Streamlit
 
 ## Licença
 
@@ -151,5 +179,5 @@ Este projeto está licenciado sob a MIT License - veja o arquivo [LICENSE](LICEN
 
 ---
 
-**Versão:** 0.0.0  
-**Última Atualização:** Janeiro 2025
+**Versão:** 1.0.0 - Notebooks Completos  
+**Última Atualização:** 28 de Outubro de 2025
