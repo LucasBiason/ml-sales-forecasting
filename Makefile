@@ -1,11 +1,10 @@
-.PHONY: help install install-dev deploy-models run-api test test-docker clean docker-build docker-up docker-down docker-logs docker-test
+.PHONY: help install deploy-models run-api test test-docker clean docker-build docker-up docker-down docker-logs docker-test
 
 help:
 	@echo "ML Sales Forecasting - Makefile"
 	@echo ""
 	@echo "Local Development:"
-	@echo "  make install        - Install production dependencies"
-	@echo "  make install-dev    - Install dev dependencies (includes tests)"
+	@echo "  make install        - Install all dev dependencies (notebooks + API)"
 	@echo "  make deploy-models  - Copy trained models from notebooks to API"
 	@echo "  make run-api        - Start FastAPI server (local)"
 	@echo "  make test           - Run API tests locally"
@@ -22,11 +21,6 @@ help:
 	@echo "  make clean          - Clean cache and temporary files"
 
 install:
-	@echo "Installing production dependencies..."
-	cd api-service && python -m venv venv && . venv/bin/activate && pip install -r requirements.txt
-	@echo "✓ Production dependencies installed!"
-
-install-dev:
 	@echo "Installing notebook dependencies..."
 	cd notebooks && python -m venv venv && . venv/bin/activate && pip install -r requirements.txt
 	@echo ""
