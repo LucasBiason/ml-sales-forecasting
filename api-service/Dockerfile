@@ -20,7 +20,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 
 # ============================================
-# Stage 2: Test - Run tests with coverage
+# Stage 2: Test - Prepare test environment
 # ============================================
 FROM base AS test
 
@@ -38,8 +38,12 @@ COPY pytest.ini .coveragerc ./
 # Copy models for testing
 COPY models/ ./models/
 
-# Run tests
-RUN pytest tests/ -v --cov=app --cov-report=term-missing --cov-report=html --cov-fail-under=90
+# Copy entrypoint
+COPY --chmod=755 entrypoint.sh /entrypoint.sh
+
+# Tests run via entrypoint (not during build)
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["test"]
 
 
 # ============================================

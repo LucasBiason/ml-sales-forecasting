@@ -26,9 +26,13 @@ jobs:
       run: |
         docker compose --profile test build test
     
-    - name: Run tests
+    - name: Run tests and extract coverage
       run: |
+        # Run tests
         docker compose --profile test up --abort-on-container-exit test
+        
+        # Copy coverage report from container
+        docker cp ml-sales-api-test:/app/htmlcov ./api-service/htmlcov || echo "Coverage report not found"
         
     - name: Check test results
       run: |
@@ -36,8 +40,10 @@ jobs:
         echo "Test container exit code: $EXIT_CODE"
         if [ "$EXIT_CODE" != "0" ]; then
           echo "Tests failed or coverage below 90%"
+          docker compose --profile test logs test
           exit 1
         fi
+        echo "Tests passed successfully!"
     
     - name: Cleanup test containers
       if: always()
@@ -46,7 +52,7 @@ jobs:
     
     - name: Upload coverage report
       uses: actions/upload-artifact@v4
-      if: always()
+      if: success()
       with:
         name: coverage-report
         path: api-service/htmlcov/
