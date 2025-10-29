@@ -1,13 +1,22 @@
-.PHONY: help install deploy-models run-api test clean
+.PHONY: help install deploy-models run-api test clean docker-build docker-up docker-down docker-logs docker-test
 
 help:
 	@echo "ML Sales Forecasting - Makefile"
 	@echo ""
-	@echo "Available commands:"
+	@echo "Local Development:"
 	@echo "  make install        - Install dependencies for notebooks and API"
 	@echo "  make deploy-models  - Copy trained models from notebooks to API"
-	@echo "  make run-api        - Start FastAPI server"
+	@echo "  make run-api        - Start FastAPI server (local)"
 	@echo "  make test          - Run API tests"
+	@echo ""
+	@echo "Docker Commands:"
+	@echo "  make docker-build   - Build Docker images"
+	@echo "  make docker-up      - Start containers with docker-compose"
+	@echo "  make docker-down    - Stop and remove containers"
+	@echo "  make docker-logs    - Show container logs"
+	@echo "  make docker-test    - Test API running in Docker"
+	@echo ""
+	@echo "Utilities:"
 	@echo "  make clean         - Clean cache and temporary files"
 
 install:
@@ -33,6 +42,35 @@ run-api:
 test:
 	@echo "Running API tests..."
 	cd api-service && . venv/bin/activate && pytest tests/ -v
+
+docker-build:
+	@echo "Building Docker images..."
+	docker-compose build
+	@echo "✓ Images built!"
+
+docker-up:
+	@echo "Starting containers with docker-compose..."
+	docker-compose up -d
+	@echo ""
+	@echo "✓ Containers started!"
+	@echo "API available at: http://localhost:8000"
+	@echo "Docs at: http://localhost:8000/docs"
+	@echo ""
+	@echo "Check status with: make docker-logs"
+
+docker-down:
+	@echo "Stopping containers..."
+	docker-compose down
+	@echo "✓ Containers stopped!"
+
+docker-logs:
+	@echo "Container logs (Ctrl+C to exit):"
+	docker-compose logs -f api
+
+docker-test:
+	@echo "Testing API in Docker..."
+	@sleep 3
+	@curl -s http://localhost:8000/health | python -m json.tool || echo "API not responding"
 
 clean:
 	@echo "Cleaning cache and temporary files..."
