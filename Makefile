@@ -36,7 +36,7 @@ deploy-models:
 dev:
 	@echo "Starting API in DEVELOPMENT mode (hot reload)..."
 	@echo ""
-	@ENVIRONMENT=development DEV_VOLUME=rw docker-compose --profile api up --build
+	@API_COMMAND=dev DEV_VOLUME=rw LOG_LEVEL=debug docker-compose --profile api up --build
 	@echo ""
 	@echo "API stopped."
 
@@ -58,7 +58,7 @@ build:
 
 up:
 	@echo "Starting PRODUCTION API..."
-	@ENVIRONMENT=production DEV_VOLUME=ro docker-compose --profile api up -d
+	@API_COMMAND=runserver DEV_VOLUME=ro WORKERS=4 LOG_LEVEL=info docker-compose --profile api up -d
 	@echo ""
 	@echo "✓ API running!"
 	@echo "  URL: http://localhost:8000"

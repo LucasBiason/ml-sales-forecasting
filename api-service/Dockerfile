@@ -59,6 +59,7 @@ USER appuser
 # Expose port
 EXPOSE 8000
 
-# Entrypoint
-COPY entrypoint.sh /entrypoint.sh
+# Copy and set entrypoint
+COPY --chmod=755 entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
+CMD ["runserver"]
