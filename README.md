@@ -1,13 +1,12 @@
 # ML Sales Forecasting - UK Property Price Prediction
 
-[![CI/CD](https://github.com/LucasBiason/ml-sales-forecasting/workflows/CI/CD%20-%20Tests,%20Coverage%20&%20Deploy/badge.svg)](https://github.com/LucasBiason/ml-sales-forecasting/actions)
-[![Coverage](https://img.shields.io/badge/coverage-90%25+-brightgreen.svg)](api-service/htmlcov/index.html)
+[![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen.svg)](api-service/htmlcov/index.html)
 [![Python](https://img.shields.io/badge/python-3.13-blue.svg)](https://www.python.org/downloads/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-009688.svg)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/React-18-61DAFB.svg)](https://react.dev/)
 [![Docker](https://img.shields.io/badge/docker-ready-blue.svg)](https://www.docker.com/)
 
-Sistema completo de previsão de preços de imóveis no Reino Unido usando Random Forest, com API FastAPI, frontend React e CI/CD.
+Sistema completo de previsão de preços de imóveis no Reino Unido usando Random Forest, com API FastAPI e frontend React.
 
 ## Preview
 
