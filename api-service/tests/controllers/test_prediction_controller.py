@@ -39,7 +39,7 @@ def test_predict_price_model_not_loaded(forecaster_unloaded, sample_property_dat
 def test_predict_price_value_error(sample_property_data):
     """Test prediction with ValueError (invalid data)."""
     from unittest.mock import MagicMock
-
+    
     forecaster_mock = MagicMock()
     forecaster_mock.is_loaded = True
     forecaster_mock.predict = MagicMock(side_effect=ValueError("Invalid county"))
@@ -54,7 +54,7 @@ def test_predict_price_value_error(sample_property_data):
 def test_predict_price_generic_error(sample_property_data):
     """Test prediction with generic error."""
     from unittest.mock import MagicMock
-
+    
     forecaster_mock = MagicMock()
     forecaster_mock.is_loaded = True
     forecaster_mock.predict = MagicMock(side_effect=Exception("Unexpected error"))

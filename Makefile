@@ -50,13 +50,12 @@ dev-full:
 	@echo "Services stopped."
 
 test:
-	@echo "Running tests (multi-stage build)..."
+	@echo "Running tests..."
 	@echo ""
-	docker-compose --profile test build test
-	docker-compose --profile test up --abort-on-container-exit test
-	@echo ""
-	@echo "Cleaning up..."
-	docker-compose --profile test down
+	@docker compose --profile test down 2>/dev/null || true
+	@docker compose --profile test build --no-cache test
+	@docker compose --profile test up --abort-on-container-exit test
+	@docker compose --profile test down
 	@echo ""
 	@echo "✓ Tests complete! Coverage: api-service/htmlcov/index.html"
 

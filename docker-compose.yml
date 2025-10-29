@@ -11,11 +11,12 @@ services:
     profiles: ["test"]
     command: ["test"]
     volumes:
-      - ./api-service/htmlcov:/app/htmlcov
+      - ./api-service/htmlcov:/app/htmlcov:rw
     environment:
       - PYTHONPATH=/app
     networks:
       - ml-network
+    restart: "no"
 
   # ==========================================
   # API service - Development or Production
