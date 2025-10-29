@@ -38,14 +38,16 @@ deploy-models:
 dev:
 	@echo "Starting API in DEVELOPMENT mode (hot reload)..."
 	@echo ""
-	@API_COMMAND=dev DEV_VOLUME=rw LOG_LEVEL=debug docker-compose --profile api up --build
+	@docker compose --profile api down 2>/dev/null || true
+	@API_COMMAND=dev DEV_VOLUME=rw LOG_LEVEL=debug docker compose --profile api up --build
 	@echo ""
 	@echo "API stopped."
 
 dev-full:
 	@echo "Starting FULL STACK in DEVELOPMENT mode..."
 	@echo ""
-	@API_COMMAND=dev DEV_VOLUME=rw LOG_LEVEL=debug docker-compose --profile full up --build
+	@docker compose --profile full down 2>/dev/null || true
+	@API_COMMAND=dev DEV_VOLUME=rw LOG_LEVEL=debug docker compose --profile full up --build
 	@echo ""
 	@echo "Services stopped."
 
@@ -66,7 +68,8 @@ build:
 
 up:
 	@echo "Starting PRODUCTION API..."
-	@API_COMMAND=runserver DEV_VOLUME=ro WORKERS=4 LOG_LEVEL=info docker-compose --profile api up -d
+	@docker compose --profile api down 2>/dev/null || true
+	@API_COMMAND=runserver DEV_VOLUME=ro WORKERS=4 LOG_LEVEL=info docker compose --profile api up -d
 	@echo ""
 	@echo "✓ API running!"
 	@echo "  URL: http://localhost:8000"
@@ -76,7 +79,8 @@ up:
 
 up-full:
 	@echo "Starting FULL STACK in PRODUCTION..."
-	@API_COMMAND=runserver DEV_VOLUME=ro WORKERS=4 LOG_LEVEL=info docker-compose --profile full up -d
+	@docker compose --profile full down 2>/dev/null || true
+	@API_COMMAND=runserver DEV_VOLUME=ro WORKERS=4 LOG_LEVEL=info docker compose --profile full up -d
 	@echo ""
 	@echo "✓ Full stack running!"
 	@echo "  Frontend: http://localhost:3000"
@@ -87,16 +91,16 @@ up-full:
 
 down:
 	@echo "Stopping all containers..."
-	docker-compose --profile api down
-	docker-compose --profile frontend down
-	docker-compose --profile full down
-	docker-compose --profile test down
+	@docker compose --profile api down 2>/dev/null || true
+	@docker compose --profile frontend down 2>/dev/null || true
+	@docker compose --profile full down 2>/dev/null || true
+	@docker compose --profile test down 2>/dev/null || true
 	@echo "✓ Stopped!"
 
 logs:
 	@echo "Logs (Ctrl+C to exit):"
 	@echo ""
-	docker-compose logs -f api frontend 2>/dev/null || docker-compose --profile api logs -f api
+	@docker compose logs -f api frontend 2>/dev/null || docker compose --profile api logs -f api
 
 clean:
 	@echo "Cleaning cache and temporary files..."
