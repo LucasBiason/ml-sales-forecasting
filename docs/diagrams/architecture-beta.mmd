@@ -1,0 +1,36 @@
+---
+config:
+  theme: dark
+---
+architecture-beta
+    group client(cloud)[Client Layer]
+    service user(internet)[User] in client
+    service browser(server)[Web Browser] in client
+    group frontend(server)[Frontend]
+    service react(server)[React App] in frontend
+    service nginx(server)[Nginx Server] in frontend
+    group backend(database)[Backend]
+    service fastapi(server)[FastAPI] in backend
+    service controller(server)[Controllers] in backend
+    service router(server)[Routers] in backend
+    group ml(cloud)[ML Layer]
+    service model(server)[Random Forest] in ml
+    service encoders(database)[Encoders] in ml
+    service metadata(database)[Metadata] in ml
+    group data(disk)[Data Pipeline]
+    service notebooks(server)[Jupyter Notebooks] in data
+    service dataset(database)[UK Property Sales] in data
+    user:R --> L:browser
+    browser:R --> L:nginx
+    nginx:R --> L:react
+    react:R --> L:fastapi
+    fastapi:B -- T:router
+    router:R -- L:controller
+    controller:B -- T:model
+    model:R -- L:encoders
+    model:B -- T:metadata
+    fastapi:L --> R:react
+    react:L --> R:browser
+    notebooks:B -- T:model
+    dataset:T -- B:notebooks
+    model:T -- B:fastapi

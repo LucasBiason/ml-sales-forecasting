@@ -1,0 +1,54 @@
+flowchart TB
+    subgraph Client[Client Layer]
+        User((User))
+        Browser[Web Browser]
+    end
+
+    subgraph Frontend[Frontend - Docker Port 3000]
+        React[React App<br/>TypeScript + TailwindCSS]
+        Nginx[Nginx Server]
+    end
+
+    subgraph Backend[Backend - Docker Port 8000]
+        FastAPI[FastAPI<br/>Python 3.13]
+        Controller[Controllers<br/>Business Logic]
+        Router[Routers<br/>View Layer]
+    end
+
+    subgraph ML[ML Layer]
+        Model[Random Forest<br/>100 estimators]
+        Encoders[Encoders<br/>Label + Target]
+        Metadata[Metadata<br/>Features + Stats]
+    end
+
+    subgraph Data[Data Pipeline]
+        Notebooks[Jupyter Notebooks<br/>Training]
+        Dataset[UK Property Sales<br/>99,831 samples]
+    end
+
+    User -->|Interact| Browser
+    Browser -->|HTTP Request| Nginx
+    Nginx -->|Serve| React
+    React -->|POST /api/v1/predict| FastAPI
+    FastAPI -->|Route| Router
+    Router -->|Delegate| Controller
+    Controller -->|Predict| Model
+    Model -->|Use| Encoders
+    Model -->|Use| Metadata
+    FastAPI -->|JSON Response| React
+    React -->|Render| Browser
+
+    Notebooks -->|Train| Model
+    Dataset -->|Input| Notebooks
+    Model -.->|Export .joblib| FastAPI
+
+    classDef frontend fill:#61DAFB,stroke:#333,stroke-width:2px
+    classDef backend fill:#009688,stroke:#333,stroke-width:2px
+    classDef ml fill:#FF6F00,stroke:#333,stroke-width:2px
+    classDef data fill:#4CAF50,stroke:#333,stroke-width:2px
+    
+    class React,Nginx frontend
+    class FastAPI,Controller,Router backend
+    class Model,Encoders,Metadata ml
+    class Notebooks,Dataset data
+

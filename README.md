@@ -4,20 +4,79 @@
 [![Coverage](https://img.shields.io/badge/coverage-90%25+-brightgreen.svg)](api-service/htmlcov/index.html)
 [![Python](https://img.shields.io/badge/python-3.13-blue.svg)](https://www.python.org/downloads/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-009688.svg)](https://fastapi.tiangolo.com/)
+[![React](https://img.shields.io/badge/React-18-61DAFB.svg)](https://react.dev/)
 [![Docker](https://img.shields.io/badge/docker-ready-blue.svg)](https://www.docker.com/)
 
-Sistema completo de previsão de preços de imóveis no Reino Unido usando Random Forest, com API FastAPI, testes automatizados e CI/CD.
+Sistema completo de previsão de preços de imóveis no Reino Unido usando Random Forest, com API FastAPI, frontend React e CI/CD.
+
+## Preview
+
+![UK Property Price Predictor](docs/screenshots/app-preview.png)
+
+*Interface completa mostrando formulário de entrada e resultado da predição em tempo real.*
+
+## Arquitetura
+
+![System Architecture](docs/screenshots/app-beta.png)
+
+*Diagrama simplificado da arquitetura mostrando fluxo entre Client, Frontend, Backend e ML.*
+
+> **Diagrama completo:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | **Fonte Mermaid:** [docs/diagrams/architecture-beta.mmd](docs/diagrams/architecture-beta.mmd)
+
+### Fluxo de Requisicao
+
+1. **User** preenche formulario no navegador
+2. **React** valida e envia POST para `/api/v1/predict`
+3. **FastAPI** recebe via Router e delega para Controller
+4. **Controller** chama `SalesForecaster.predict()`
+5. **Random Forest** usa encoders para processar features
+6. **Model** retorna predicao com intervalo de confianca
+7. **API** retorna JSON com resultado
+8. **React** renderiza resultado na interface
+
+### Request/Response Example
+
+**Frontend → Backend:**
+```json
+POST /api/v1/predict
+Content-Type: application/json
+
+{
+  "property_type": "T",
+  "county": "GREATER LONDON",
+  "postcode": "SW1A 1AA",
+  "year": 2024
+}
+```
+
+**Backend → Frontend:**
+```json
+{
+  "predicted_price": 142301.50,
+  "confidence_interval": {"min": 60000, "max": 242300},
+  "model_info": {"type": "RandomForest", "n_estimators": 100}
+}
+```
 
 ## Características
 
 - **Machine Learning**: Random Forest com 100% dos dados (99.831 amostras)
+- **Frontend React**: Interface moderna com TailwindCSS e TypeScript
 - **API REST**: FastAPI com documentação automática (Swagger/ReDoc)
 - **Testes**: 75+ testes unitários com 90%+ de cobertura
-- **Docker**: Ambiente completo containerizado (dev + prod)
+- **Docker**: Full stack containerizado (API + Frontend)
 - **CI/CD**: GitHub Actions com deploy automático
-- **Coverage**: Relatórios HTML detalhados
+- **Real-time**: Predições instantâneas com intervalo de confiança
 
 ## Tecnologias
+
+### Frontend
+- React 18 + TypeScript
+- Vite (Build tool)
+- TailwindCSS (Styling)
+- Axios (HTTP client)
+- Lucide React (Icons)
+- Nginx (Production server)
 
 ### Backend
 - Python 3.13
@@ -28,7 +87,7 @@ Sistema completo de previsão de preços de imóveis no Reino Unido usando Rando
 - pytest, pytest-cov (Testes e cobertura)
 
 ### DevOps
-- Docker & Docker Compose
+- Docker & Docker Compose (Multi-stage builds)
 - GitHub Actions (CI/CD)
 - Makefile (Automação)
 
@@ -94,24 +153,21 @@ cd ml-sales-forecasting
 ### 3. Setup (primeira vez)
 
 ```bash
-# Instalar dependências dos notebooks (venv)
-make install
-
 # Copiar modelos treinados para a API
 make deploy-models
 ```
 
-### 4. Rodar API em desenvolvimento (Docker)
+### 4. Rodar aplicação completa (Docker)
 
 ```bash
-# Modo desenvolvimento (hot reload)
-make dev
+# Full stack (API + Frontend)
+make dev-full
 ```
 
-API disponível em:
-- http://localhost:8000
-- Docs: http://localhost:8000/docs
-- ReDoc: http://localhost:8000/redoc
+Acesse:
+- **Frontend**: http://localhost:3000
+- **API**: http://localhost:8000
+- **Docs**: http://localhost:8000/docs
 
 ### 5. Rodar testes
 
@@ -132,17 +188,19 @@ make deploy-models  # Copiar modelos para API
 
 ### Development (Docker)
 ```bash
-make dev            # Start API (hot reload)
-make logs           # Ver logs em tempo real
+make dev            # API only (hot reload)
+make dev-full       # API + Frontend (full stack)
 make test           # Rodar testes
+make logs           # Ver logs
 make down           # Parar containers
 ```
 
 ### Production (Docker)
 ```bash
-make build          # Build imagem de produção
-make up             # Start em modo produção
-make down           # Parar e remover containers
+make build          # Build API + Frontend
+make up             # Start API only
+make up-full        # Start API + Frontend
+make down           # Parar tudo
 ```
 
 ### Utilities
@@ -221,12 +279,38 @@ POST /api/v1/predict
 }
 ```
 
-## Validação de Entrada
+## Frontend React
+
+### Interface
+
+A interface foi desenvolvida com foco em **UX** e **clareza**:
+
+- **Layout responsivo**: Grid adaptável (desktop: 2 colunas, mobile: stack)
+- **Dark mode**: Suporte automático
+- **Real-time feedback**: Loading states e validação
+- **API status**: Indicador online/offline no header
+- **Error handling**: Mensagens claras de erro
+
+### Componentes
+
+**ForecastForm** - Formulário de entrada
+- 6 campos com validação
+- Auto-uppercase para county/postcode
+- Ícones intuitivos (Lucide React)
+- Loading spinner durante predição
+
+**ForecastResult** - Exibição de resultado
+- Preço previsto em destaque
+- Intervalo de confiança (80%)
+- Informações do modelo
+- Formatação em £ (GBP)
+
+### Validação de Entrada
 
 - **property_type**: D (Detached), S (Semi-detached), T (Terraced), F (Flat), O (Other)
 - **old_new**: Y (New), N (Existing)
 - **duration**: F (Freehold), L (Leasehold), U (Unknown)
-- **county**: 2-50 caracteres
+- **county**: 2-50 caracteres (auto-uppercase)
 - **postcode**: 5-10 caracteres (ex: "SW1A 1AA")
 - **year**: 1995-2030
 

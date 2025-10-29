@@ -1,4 +1,4 @@
-.PHONY: help install deploy-models dev test build up down logs clean
+.PHONY: help install deploy-models dev dev-full test build up up-full down logs clean
 
 help:
 	@echo "ML Sales Forecasting - Makefile"
@@ -8,14 +8,16 @@ help:
 	@echo "  make deploy-models  - Copy trained models from notebooks to API"
 	@echo ""
 	@echo "Development:"
-	@echo "  make dev            - Start API in dev mode (hot reload)"
+	@echo "  make dev            - Start API only (hot reload)"
+	@echo "  make dev-full       - Start API + Frontend (full stack)"
 	@echo "  make test           - Run tests (multi-stage build)"
 	@echo "  make logs           - Show API logs"
 	@echo ""
 	@echo "Production:"
-	@echo "  make build          - Build production image"
-	@echo "  make up             - Start production API"
-	@echo "  make down           - Stop containers"
+	@echo "  make build          - Build all images (API + Frontend)"
+	@echo "  make up             - Start API only"
+	@echo "  make up-full        - Start API + Frontend"
+	@echo "  make down           - Stop all containers"
 	@echo ""
 	@echo "Utilities:"
 	@echo "  make clean          - Clean cache and temporary files"
@@ -40,6 +42,13 @@ dev:
 	@echo ""
 	@echo "API stopped."
 
+dev-full:
+	@echo "Starting FULL STACK in DEVELOPMENT mode..."
+	@echo ""
+	@API_COMMAND=dev DEV_VOLUME=rw LOG_LEVEL=debug docker-compose --profile full up --build
+	@echo ""
+	@echo "Services stopped."
+
 test:
 	@echo "Running tests (multi-stage build)..."
 	@echo ""
@@ -52,9 +61,9 @@ test:
 	@echo "✓ Tests complete! Coverage: api-service/htmlcov/index.html"
 
 build:
-	@echo "Building PRODUCTION image (after tests)..."
-	docker-compose --profile api build --no-cache api
-	@echo "✓ Production image built!"
+	@echo "Building PRODUCTION images..."
+	docker-compose build --no-cache api frontend
+	@echo "✓ Production images built!"
 
 up:
 	@echo "Starting PRODUCTION API..."
@@ -66,16 +75,29 @@ up:
 	@echo ""
 	@echo "View logs: make logs"
 
+up-full:
+	@echo "Starting FULL STACK in PRODUCTION..."
+	@API_COMMAND=runserver DEV_VOLUME=ro WORKERS=4 LOG_LEVEL=info docker-compose --profile full up -d
+	@echo ""
+	@echo "✓ Full stack running!"
+	@echo "  Frontend: http://localhost:3000"
+	@echo "  API: http://localhost:8000"
+	@echo "  Docs: http://localhost:8000/docs"
+	@echo ""
+	@echo "View logs: make logs"
+
 down:
-	@echo "Stopping containers..."
+	@echo "Stopping all containers..."
 	docker-compose --profile api down
+	docker-compose --profile frontend down
+	docker-compose --profile full down
 	docker-compose --profile test down
 	@echo "✓ Stopped!"
 
 logs:
-	@echo "API logs (Ctrl+C to exit):"
+	@echo "Logs (Ctrl+C to exit):"
 	@echo ""
-	docker-compose --profile api logs -f api
+	docker-compose logs -f api frontend 2>/dev/null || docker-compose --profile api logs -f api
 
 clean:
 	@echo "Cleaning cache and temporary files..."

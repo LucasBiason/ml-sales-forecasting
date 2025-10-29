@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # ==========================================
   # Test service - Run tests with coverage
@@ -48,7 +46,27 @@ services:
     networks:
       - ml-network
     restart: unless-stopped
-    profiles: ["api"]
+    profiles: ["api", "full"]
+
+  # ==========================================
+  # Frontend service - React application
+  # ==========================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: production
+    container_name: ml-sales-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    networks:
+      - ml-network
+    restart: unless-stopped
+    profiles: ["frontend", "full"]
 
 networks:
   ml-network:

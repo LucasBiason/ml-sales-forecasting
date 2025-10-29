@@ -1,0 +1,19 @@
+sequenceDiagram
+    participant User
+    participant Frontend
+    participant API
+    participant ML
+
+    User->>Frontend: Preenche formulario
+    Frontend->>Frontend: Valida dados
+    Frontend->>API: POST /api/v1/predict
+    API->>API: Router to Controller
+    API->>ML: predict(property_data)
+    ML->>ML: Encode features
+    ML->>ML: Random Forest inference
+    ML->>ML: Calculate confidence
+    ML-->>API: Prediction + Interval
+    API-->>Frontend: JSON Response
+    Frontend->>Frontend: Format and Render
+    Frontend-->>User: Exibe resultado
+
