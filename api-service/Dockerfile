@@ -28,7 +28,7 @@ FROM base AS test
 COPY requirements-dev.txt .
 RUN pip install --no-cache-dir -r requirements-dev.txt
 
-# Copy application code
+# Copy application code (including all __init__.py)
 COPY app/ ./app/
 
 # Copy tests
@@ -40,6 +40,9 @@ COPY models ./models
 
 # Copy entrypoint
 COPY --chmod=755 entrypoint.sh /entrypoint.sh
+
+# Set PYTHONPATH for imports
+ENV PYTHONPATH=/app
 
 # Tests run via entrypoint (not during build)
 ENTRYPOINT ["/entrypoint.sh"]

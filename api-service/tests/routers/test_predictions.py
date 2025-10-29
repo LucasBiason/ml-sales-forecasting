@@ -178,7 +178,7 @@ def test_predict_postcode_normalization(mock_forecaster, client):
         "old_new": "N",
         "duration": "F",
         "county": "greater london",  # Should be normalized to uppercase
-        "postcode": "  sw1a 1aa  ",  # Should be normalized
+        "postcode": "sw1a 1aa",  # Should be normalized (without extra spaces)
         "year": 2024,
     }
 

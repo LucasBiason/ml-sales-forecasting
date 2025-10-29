@@ -36,9 +36,13 @@ def test_predict_price_model_not_loaded(forecaster_unloaded, sample_property_dat
     assert "Model not loaded" in exc_info.value.detail
 
 
-def test_predict_price_value_error(forecaster_mock, sample_property_data):
+def test_predict_price_value_error(sample_property_data):
     """Test prediction with ValueError (invalid data)."""
-    forecaster_mock.predict.side_effect = ValueError("Invalid county")
+    from unittest.mock import MagicMock
+
+    forecaster_mock = MagicMock()
+    forecaster_mock.is_loaded = True
+    forecaster_mock.predict = MagicMock(side_effect=ValueError("Invalid county"))
 
     with pytest.raises(HTTPException) as exc_info:
         PredictionController.predict_price(forecaster_mock, sample_property_data)
@@ -47,9 +51,13 @@ def test_predict_price_value_error(forecaster_mock, sample_property_data):
     assert "Invalid data" in exc_info.value.detail
 
 
-def test_predict_price_generic_error(forecaster_mock, sample_property_data):
+def test_predict_price_generic_error(sample_property_data):
     """Test prediction with generic error."""
-    forecaster_mock.predict.side_effect = Exception("Unexpected error")
+    from unittest.mock import MagicMock
+
+    forecaster_mock = MagicMock()
+    forecaster_mock.is_loaded = True
+    forecaster_mock.predict = MagicMock(side_effect=Exception("Unexpected error"))
 
     with pytest.raises(HTTPException) as exc_info:
         PredictionController.predict_price(forecaster_mock, sample_property_data)

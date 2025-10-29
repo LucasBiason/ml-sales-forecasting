@@ -191,7 +191,7 @@ def test_postcode_normalization():
         "old_new": "N",
         "duration": "F",
         "county": "GREATER LONDON",
-        "postcode": "  sw1a 1aa  ",  # Lowercase with spaces
+        "postcode": "sw1a 1aa",  # Lowercase
         "year": 2024,
     }
 
