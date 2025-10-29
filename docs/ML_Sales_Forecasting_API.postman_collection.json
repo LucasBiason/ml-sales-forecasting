@@ -1,0 +1,520 @@
+{
+  "info": {
+    "_postman_id": "ml-sales-forecasting-v1",
+    "name": "ML Sales Forecasting API",
+    "description": "# ML Sales Forecasting API\n\nComplete API for UK property price prediction using Random Forest.\n\n## Overview\n- **Version:** 1.0.0\n- **Base URL:** http://localhost:8000\n- **Model:** Random Forest (100 estimators)\n- **Training Samples:** 99,831\n- **R² General:** 11.16%\n- **R² <£1M:** 27% (98.6% of properties)\n\n## Endpoints\n1. **Health:** `/` and `/health` - Service health check\n2. **Model Info:** `/api/v1/model/info` - Model metadata\n3. **Predict:** `/api/v1/predict` - Property price prediction\n\n## Import Instructions\n1. Open Postman\n2. Click \"Import\" → \"File\"\n3. Select this JSON file\n4. Collection will be ready with all examples\n\n## Documentation\nSwagger UI: http://localhost:8000/docs\nReDoc: http://localhost:8000/redoc",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "description": "Service health check endpoints. Available at root `/` and `/health` with identical responses.",
+      "item": [
+        {
+          "name": "Health Check (Root)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": ["{{base_url}}"],
+              "path": [""]
+            },
+            "description": "### GET / - Health Check (Root)\n\nCheck service health and model status at root endpoint.\n\n**Use Case:**\n- Quick health verification\n- Load balancer health probes\n- Monitoring systems\n\n**Response Fields:**\n- `status`: Service status (\"healthy\")\n- `timestamp`: Response time (ISO 8601)\n- `model_loaded`: ML model state (true/false)\n- `version`: API version (1.0.0)"
+          },
+          "response": [
+            {
+              "name": "200 OK - Model Loaded",
+              "originalRequest": {
+                "method": "GET",
+                "url": {"raw": "{{base_url}}/"}
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{"key": "Content-Type", "value": "application/json"}],
+              "body": "{\n    \"status\": \"healthy\",\n    \"timestamp\": \"2025-10-29T10:23:34.730372\",\n    \"model_loaded\": true,\n    \"version\": \"1.0.0\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Health Check (API Path)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            },
+            "description": "### GET /health - Health Check\n\nAlternative health check endpoint (same response as `/`).\n\n**Response:** Identical to `/` endpoint."
+          },
+          "response": [
+            {
+              "name": "200 OK - Same as Root",
+              "originalRequest": {
+                "method": "GET",
+                "url": {"raw": "{{base_url}}/health"}
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{"key": "Content-Type", "value": "application/json"}],
+              "body": "{\n    \"status\": \"healthy\",\n    \"timestamp\": \"2025-10-29T10:23:34.730372\",\n    \"model_loaded\": true,\n    \"version\": \"1.0.0\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Model Information",
+      "description": "Detailed model metadata and performance metrics.",
+      "item": [
+        {
+          "name": "Get Model Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/model/info",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "model", "info"]
+            },
+            "description": "### GET /api/v1/model/info - Model Metadata\n\nRetrieve complete metadata about the loaded Random Forest model.\n\n**Response Fields:**\n- `loaded`: Model loaded state\n- `model_type`: RandomForestRegressor\n- `n_estimators`: Number of trees (100)\n- `features`: Array of 6 feature names\n- `training_samples`: Training dataset size (99,831)\n- `cv_r2_mean`: Cross-validation R² (log scale: 0.439)\n- `expected_r2`: Expected R² (original scale: 0.1116 or 11.16%)\n- `trained_date`: Model training timestamp\n\n**Use Case:**\n- Verify model version\n- Monitor model performance\n- Debugging predictions\n- Model governance/auditing"
+          },
+          "response": [
+            {
+              "name": "200 OK - Model Loaded",
+              "originalRequest": {
+                "method": "GET",
+                "url": {"raw": "{{base_url}}/api/v1/model/info"}
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{"key": "Content-Type", "value": "application/json"}],
+              "body": "{\n    \"loaded\": true,\n    \"model_type\": \"RandomForestRegressor\",\n    \"n_estimators\": 100,\n    \"features\": [\n        \"property_type_enc\",\n        \"county_enc\",\n        \"postcode_region_enc\",\n        \"old_new_enc\",\n        \"duration_enc\",\n        \"year\"\n    ],\n    \"training_samples\": 99831,\n    \"cv_r2_mean\": 0.43903378976114366,\n    \"expected_r2\": 0.1116,\n    \"trained_date\": \"2025-10-28T20:09:54.055543\"\n}"
+            },
+            {
+              "name": "200 OK - Model Not Loaded",
+              "originalRequest": {
+                "method": "GET",
+                "url": {"raw": "{{base_url}}/api/v1/model/info"}
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{"key": "Content-Type", "value": "application/json"}],
+              "body": "{\n    \"loaded\": false\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Predictions - Success Cases",
+      "description": "Successful prediction examples for different property types and locations.",
+      "item": [
+        {
+          "name": "Terraced in Greater London",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"property_type\": \"T\",\n  \"old_new\": \"N\",\n  \"duration\": \"F\",\n  \"county\": \"GREATER LONDON\",\n  \"postcode\": \"SW1A 1AA\",\n  \"year\": 2024\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/predict",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "predict"]
+            },
+            "description": "### Scenario: Terraced House in Central London\n\n**Property Details:**\n- Type: Terraced (T)\n- Condition: Existing (N)\n- Tenure: Freehold (F)\n- Location: Westminster, London (SW1A)\n- Year: 2024\n\n**Expected Price:** £350,267\n**Confidence:** £316k - £400k\n\n**Interpretation:**\nTypical terraced house in prime London location. Moderate confidence interval reflecting standard market behavior in this area."
+          },
+          "response": [
+            {
+              "name": "200 OK - £350k",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{"key": "Content-Type", "value": "application/json"}],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"property_type\": \"T\",\n  \"old_new\": \"N\",\n  \"duration\": \"F\",\n  \"county\": \"GREATER LONDON\",\n  \"postcode\": \"SW1A 1AA\",\n  \"year\": 2024\n}"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{"key": "Content-Type", "value": "application/json"}],
+              "body": "{\n    \"predicted_price\": 350267.88,\n    \"confidence_interval\": {\n        \"min\": 316447.07,\n        \"max\": 400000.0\n    },\n    \"features_used\": [\n        \"property_type_enc\",\n        \"county_enc\",\n        \"postcode_region_enc\",\n        \"old_new_enc\",\n        \"duration_enc\",\n        \"year\"\n    ],\n    \"model_info\": {\n        \"type\": \"RandomForest\",\n        \"n_estimators\": 100,\n        \"expected_r2\": 0.1116\n    }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Detached in Surrey (Expensive)",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"property_type\": \"D\",\n  \"old_new\": \"Y\",\n  \"duration\": \"F\",\n  \"county\": \"SURREY\",\n  \"postcode\": \"GU1 1AA\",\n  \"year\": 2024\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/predict",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "predict"]
+            },
+            "description": "### Scenario: New Detached House in Surrey\n\n**Property Details:**\n- Type: Detached (D)\n- Condition: New construction (Y)\n- Tenure: Freehold (F)\n- Location: Surrey, Guildford area (GU1)\n- Year: 2024\n\n**Expected Price:** £1,061,889\n**Confidence:** £480k - £2.3M (WIDE)\n\n**Interpretation:**\nLuxury property in expensive commuter belt. Wide confidence interval reflects high market variability in premium segment. Surrey is one of the most expensive counties in UK."
+          },
+          "response": [
+            {
+              "name": "200 OK - £1.06M",
+              "originalRequest": {
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"property_type\": \"D\",\n  \"old_new\": \"Y\",\n  \"duration\": \"F\",\n  \"county\": \"SURREY\",\n  \"postcode\": \"GU1 1AA\",\n  \"year\": 2024\n}"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{"key": "Content-Type", "value": "application/json"}],
+              "body": "{\n    \"predicted_price\": 1061889.77,\n    \"confidence_interval\": {\n        \"min\": 479999.5,\n        \"max\": 2322500.0\n    },\n    \"features_used\": [\n        \"property_type_enc\",\n        \"county_enc\",\n        \"postcode_region_enc\",\n        \"old_new_enc\",\n        \"duration_enc\",\n        \"year\"\n    ],\n    \"model_info\": {\n        \"type\": \"RandomForest\",\n        \"n_estimators\": 100,\n        \"expected_r2\": 0.1116\n    }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Flat in Manchester (Affordable)",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"property_type\": \"F\",\n  \"old_new\": \"N\",\n  \"duration\": \"L\",\n  \"county\": \"GREATER MANCHESTER\",\n  \"postcode\": \"M1 1AA\",\n  \"year\": 2024\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/predict",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "predict"]
+            },
+            "description": "### Scenario: Leasehold Flat in Manchester\n\n**Property Details:**\n- Type: Flat/Apartment (F)\n- Condition: Existing (N)\n- Tenure: Leasehold (L)\n- Location: Manchester city center (M1)\n- Year: 2024\n\n**Expected Price:** £236,572\n**Confidence:** £230k - £245k (NARROW)\n\n**Interpretation:**\nTypical urban flat in northern England. Narrow confidence interval (±£7.5k) indicates high model confidence for this property category. Manchester flats are well-represented in training data."
+          },
+          "response": [
+            {
+              "name": "200 OK - £236k",
+              "originalRequest": {
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"property_type\": \"F\",\n  \"old_new\": \"N\",\n  \"duration\": \"L\",\n  \"county\": \"GREATER MANCHESTER\",\n  \"postcode\": \"M1 1AA\",\n  \"year\": 2024\n}"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{"key": "Content-Type", "value": "application/json"}],
+              "body": "{\n    \"predicted_price\": 236572.01,\n    \"confidence_interval\": {\n        \"min\": 230000.0,\n        \"max\": 245000.0\n    },\n    \"features_used\": [\n        \"property_type_enc\",\n        \"county_enc\",\n        \"postcode_region_enc\",\n        \"old_new_enc\",\n        \"duration_enc\",\n        \"year\"\n    ],\n    \"model_info\": {\n        \"type\": \"RandomForest\",\n        \"n_estimators\": 100,\n        \"expected_r2\": 0.1116\n    }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Predictions - Validation Errors",
+      "description": "Real validation error examples captured from API. Shows Pydantic validation responses.",
+      "item": [
+        {
+          "name": "Error - Invalid property_type",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"property_type\": \"X\",\n  \"old_new\": \"N\",\n  \"duration\": \"F\",\n  \"county\": \"GREATER LONDON\",\n  \"postcode\": \"SW1A 1AA\",\n  \"year\": 2024\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/predict",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "predict"]
+            },
+            "description": "### Validation Error: Invalid Property Type\n\n**Error:** Property type \"X\" does not match allowed pattern.\n\n**Pattern:** `^[DSTFO]$`\n\n**Valid Values:**\n- `D` - Detached\n- `S` - Semi-detached\n- `T` - Terraced\n- `F` - Flat/Apartment\n- `O` - Other\n\n**Response Code:** 422 Unprocessable Entity\n\n**Error Type:** string_pattern_mismatch\n\n**Field Location:** [\"body\", \"property_type\"]"
+          },
+          "response": [
+            {
+              "name": "422 Pattern Mismatch",
+              "originalRequest": {
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"property_type\": \"X\",\n  \"old_new\": \"N\",\n  \"duration\": \"F\",\n  \"county\": \"GREATER LONDON\",\n  \"postcode\": \"SW1A 1AA\",\n  \"year\": 2024\n}"
+                }
+              },
+              "status": "Unprocessable Entity",
+              "code": 422,
+              "_postman_previewlanguage": "json",
+              "header": [{"key": "Content-Type", "value": "application/json"}],
+              "body": "{\n    \"detail\": [\n        {\n            \"type\": \"string_pattern_mismatch\",\n            \"loc\": [\"body\", \"property_type\"],\n            \"msg\": \"String should match pattern '^[DSTFO]$'\",\n            \"input\": \"X\",\n            \"ctx\": {\n                \"pattern\": \"^[DSTFO]$\"\n            }\n        }\n    ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Error - Missing county and postcode",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"property_type\": \"T\",\n  \"old_new\": \"N\",\n  \"duration\": \"F\",\n  \"year\": 2024\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/predict",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "predict"]
+            },
+            "description": "### Validation Error: Missing Required Fields\n\n**Error:** Request missing `county` and `postcode` fields.\n\n**Required Fields:**\n- property_type ✓\n- old_new ✓\n- duration ✓\n- **county** ✗ MISSING\n- **postcode** ✗ MISSING\n- year ✓\n\n**Response Code:** 422 Unprocessable Entity\n\n**Error Type:** missing\n\n**Behavior:** API returns ALL validation errors in a single response (not fail-fast).\n\n**Field Location:** Multiple errors in detail array"
+          },
+          "response": [
+            {
+              "name": "422 Missing Fields",
+              "originalRequest": {
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"property_type\": \"T\",\n  \"old_new\": \"N\",\n  \"duration\": \"F\",\n  \"year\": 2024\n}"
+                }
+              },
+              "status": "Unprocessable Entity",
+              "code": 422,
+              "_postman_previewlanguage": "json",
+              "header": [{"key": "Content-Type", "value": "application/json"}],
+              "body": "{\n    \"detail\": [\n        {\n            \"type\": \"missing\",\n            \"loc\": [\"body\", \"county\"],\n            \"msg\": \"Field required\",\n            \"input\": {\n                \"property_type\": \"T\",\n                \"old_new\": \"N\",\n                \"duration\": \"F\",\n                \"year\": 2024\n            }\n        },\n        {\n            \"type\": \"missing\",\n            \"loc\": [\"body\", \"postcode\"],\n            \"msg\": \"Field required\",\n            \"input\": {\n                \"property_type\": \"T\",\n                \"old_new\": \"N\",\n                \"duration\": \"F\",\n                \"year\": 2024\n            }\n        }\n    ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Error - Year too early (1990)",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"property_type\": \"T\",\n  \"old_new\": \"N\",\n  \"duration\": \"F\",\n  \"county\": \"GREATER LONDON\",\n  \"postcode\": \"SW1A 1AA\",\n  \"year\": 1990\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/predict",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "predict"]
+            },
+            "description": "### Validation Error: Year Out of Range (Too Early)\n\n**Error:** Year 1990 is before model training period.\n\n**Valid Range:** 1995-2030\n- **Minimum (1995):** Start of training dataset\n- **Maximum (2030):** Reasonable future limit\n\n**Response Code:** 422 Unprocessable Entity\n\n**Error Type:** greater_than_equal\n\n**Constraint:** year >= 1995\n\n**Reason:** Model was trained on data from 1995-2025, predictions outside this range may be unreliable."
+          },
+          "response": [
+            {
+              "name": "422 Year < 1995",
+              "originalRequest": {
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"property_type\": \"T\",\n  \"old_new\": \"N\",\n  \"duration\": \"F\",\n  \"county\": \"GREATER LONDON\",\n  \"postcode\": \"SW1A 1AA\",\n  \"year\": 1990\n}"
+                }
+              },
+              "status": "Unprocessable Entity",
+              "code": 422,
+              "_postman_previewlanguage": "json",
+              "header": [{"key": "Content-Type", "value": "application/json"}],
+              "body": "{\n    \"detail\": [\n        {\n            \"type\": \"greater_than_equal\",\n            \"loc\": [\"body\", \"year\"],\n            \"msg\": \"Input should be greater than or equal to 1995\",\n            \"input\": 1990,\n            \"ctx\": {\n                \"ge\": 1995\n            }\n        }\n    ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Error - Year too late (2035)",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"property_type\": \"T\",\n  \"old_new\": \"N\",\n  \"duration\": \"F\",\n  \"county\": \"GREATER LONDON\",\n  \"postcode\": \"SW1A 1AA\",\n  \"year\": 2035\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/predict",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "predict"]
+            },
+            "description": "### Validation Error: Year Out of Range (Too Late)\n\n**Error:** Year 2035 exceeds maximum allowed.\n\n**Valid Range:** 1995-2030\n\n**Response Code:** 422 Unprocessable Entity\n\n**Error Type:** less_than_equal\n\n**Constraint:** year <= 2030"
+          },
+          "response": [
+            {
+              "name": "422 Year > 2030",
+              "originalRequest": {
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"property_type\": \"T\",\n  \"old_new\": \"N\",\n  \"duration\": \"F\",\n  \"county\": \"GREATER LONDON\",\n  \"postcode\": \"SW1A 1AA\",\n  \"year\": 2035\n}"
+                }
+              },
+              "status": "Unprocessable Entity",
+              "code": 422,
+              "_postman_previewlanguage": "json",
+              "header": [{"key": "Content-Type", "value": "application/json"}],
+              "body": "{\n    \"detail\": [\n        {\n            \"type\": \"less_than_equal\",\n            \"loc\": [\"body\", \"year\"],\n            \"msg\": \"Input should be less than or equal to 2030\",\n            \"input\": 2035,\n            \"ctx\": {\n                \"le\": 2030\n            }\n        }\n    ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Error - Invalid old_new value",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"property_type\": \"T\",\n  \"old_new\": \"X\",\n  \"duration\": \"F\",\n  \"county\": \"GREATER LONDON\",\n  \"postcode\": \"SW1A 1AA\",\n  \"year\": 2024\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/predict",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "predict"]
+            },
+            "description": "### Validation Error: Invalid old_new Value\n\n**Error:** old_new \"X\" does not match pattern.\n\n**Pattern:** `^[YN]$`\n\n**Valid Values:**\n- `Y` - New construction\n- `N` - Existing property\n\n**Response Code:** 422"
+          },
+          "response": [
+            {
+              "name": "422 Invalid old_new",
+              "originalRequest": {
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"property_type\": \"T\",\n  \"old_new\": \"X\",\n  \"duration\": \"F\",\n  \"county\": \"GREATER LONDON\",\n  \"postcode\": \"SW1A 1AA\",\n  \"year\": 2024\n}"
+                }
+              },
+              "status": "Unprocessable Entity",
+              "code": 422,
+              "_postman_previewlanguage": "json",
+              "header": [{"key": "Content-Type", "value": "application/json"}],
+              "body": "{\n    \"detail\": [\n        {\n            \"type\": \"string_pattern_mismatch\",\n            \"loc\": [\"body\", \"old_new\"],\n            \"msg\": \"String should match pattern '^[YN]$'\",\n            \"input\": \"X\",\n            \"ctx\": {\n                \"pattern\": \"^[YN]$\"\n            }\n        }\n    ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Error - Invalid duration value",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"property_type\": \"T\",\n  \"old_new\": \"N\",\n  \"duration\": \"X\",\n  \"county\": \"GREATER LONDON\",\n  \"postcode\": \"SW1A 1AA\",\n  \"year\": 2024\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/predict",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "predict"]
+            },
+            "description": "### Validation Error: Invalid Duration Value\n\n**Error:** duration \"X\" does not match pattern.\n\n**Pattern:** `^[FLU]$`\n\n**Valid Values:**\n- `F` - Freehold (own land and building)\n- `L` - Leasehold (lease from landowner)\n- `U` - Unknown\n\n**Response Code:** 422"
+          },
+          "response": [
+            {
+              "name": "422 Invalid duration",
+              "originalRequest": {
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"property_type\": \"T\",\n  \"old_new\": \"N\",\n  \"duration\": \"X\",\n  \"county\": \"GREATER LONDON\",\n  \"postcode\": \"SW1A 1AA\",\n  \"year\": 2024\n}"
+                }
+              },
+              "status": "Unprocessable Entity",
+              "code": 422,
+              "_postman_previewlanguage": "json",
+              "header": [{"key": "Content-Type", "value": "application/json"}],
+              "body": "{\n    \"detail\": [\n        {\n            \"type\": \"string_pattern_mismatch\",\n            \"loc\": [\"body\", \"duration\"],\n            \"msg\": \"String should match pattern '^[FLU]$'\",\n            \"input\": \"X\",\n            \"ctx\": {\n                \"pattern\": \"^[FLU]$\"\n            }\n        }\n    ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Error - Postcode too short",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"property_type\": \"T\",\n  \"old_new\": \"N\",\n  \"duration\": \"F\",\n  \"county\": \"GREATER LONDON\",\n  \"postcode\": \"SW1\",\n  \"year\": 2024\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/predict",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "predict"]
+            },
+            "description": "### Validation Error: Postcode Too Short\n\n**Error:** Postcode \"SW1\" has only 3 characters.\n\n**Constraints:**\n- **Min length:** 5 characters\n- **Max length:** 10 characters\n- **Format:** UK postcode (e.g. \"SW1A 1AA\")\n\n**Response Code:** 422\n\n**Error Type:** string_too_short"
+          },
+          "response": [
+            {
+              "name": "422 Postcode Too Short",
+              "originalRequest": {
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"property_type\": \"T\",\n  \"old_new\": \"N\",\n  \"duration\": \"F\",\n  \"county\": \"GREATER LONDON\",\n  \"postcode\": \"SW1\",\n  \"year\": 2024\n}"
+                }
+              },
+              "status": "Unprocessable Entity",
+              "code": 422,
+              "_postman_previewlanguage": "json",
+              "header": [{"key": "Content-Type", "value": "application/json"}],
+              "body": "{\n    \"detail\": [\n        {\n            \"type\": \"string_too_short\",\n            \"loc\": [\"body\", \"postcode\"],\n            \"msg\": \"String should have at least 5 characters\",\n            \"input\": \"SW1\",\n            \"ctx\": {\n                \"min_length\": 5\n            }\n        }\n    ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Error - County too short",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"property_type\": \"T\",\n  \"old_new\": \"N\",\n  \"duration\": \"F\",\n  \"county\": \"L\",\n  \"postcode\": \"SW1A 1AA\",\n  \"year\": 2024\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/predict",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "predict"]
+            },
+            "description": "### Validation Error: County Too Short\n\n**Error:** County \"L\" has only 1 character.\n\n**Constraints:**\n- **Min length:** 2 characters\n- **Max length:** 50 characters\n\n**Response Code:** 422\n\n**Error Type:** string_too_short"
+          },
+          "response": [
+            {
+              "name": "422 County Too Short",
+              "originalRequest": {
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"property_type\": \"T\",\n  \"old_new\": \"N\",\n  \"duration\": \"F\",\n  \"county\": \"L\",\n  \"postcode\": \"SW1A 1AA\",\n  \"year\": 2024\n}"
+                }
+              },
+              "status": "Unprocessable Entity",
+              "code": 422,
+              "_postman_previewlanguage": "json",
+              "header": [{"key": "Content-Type", "value": "application/json"}],
+              "body": "{\n    \"detail\": [\n        {\n            \"type\": \"string_too_short\",\n            \"loc\": [\"body\", \"county\"],\n            \"msg\": \"String should have at least 2 characters\",\n            \"input\": \"L\",\n            \"ctx\": {\n                \"min_length\": 2\n            }\n        }\n    ]\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

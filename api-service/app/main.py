@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import logging
 
 from .core import startup_event, shutdown_event
-from .routers import root_router, health_router, predictions_router
+from .routers import health_router, predictions_router
 
 # Configure logging
 logging.basicConfig(
@@ -40,6 +40,5 @@ app.on_event("startup")(startup_event)
 app.on_event("shutdown")(shutdown_event)
 
 # Include routers
-app.include_router(root_router)
-app.include_router(health_router, prefix="/api/v1", tags=["health"])
+app.include_router(health_router, tags=["health"])
 app.include_router(predictions_router, prefix="/api/v1", tags=["predictions"])
