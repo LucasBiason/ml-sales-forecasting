@@ -1,4 +1,4 @@
-.PHONY: help install deploy-models dev build up down logs test test-docker clean
+.PHONY: help install deploy-models dev test build up down logs clean
 
 help:
 	@echo "ML Sales Forecasting - Makefile"
@@ -7,15 +7,15 @@ help:
 	@echo "  make install        - Install notebook dependencies (venv)"
 	@echo "  make deploy-models  - Copy trained models from notebooks to API"
 	@echo ""
-	@echo "Development (Docker):"
-	@echo "  make dev            - Start API in development mode (hot reload)"
-	@echo "  make logs           - Show API logs (Ctrl+C to exit)"
-	@echo "  make test           - Run tests in Docker container"
+	@echo "Development:"
+	@echo "  make dev            - Start API in dev mode (hot reload)"
+	@echo "  make test           - Run tests (multi-stage build)"
+	@echo "  make logs           - Show API logs"
 	@echo ""
-	@echo "Production (Docker):"
-	@echo "  make build          - Build production Docker image"
-	@echo "  make up             - Start production containers"
-	@echo "  make down           - Stop and remove containers"
+	@echo "Production:"
+	@echo "  make build          - Build production image"
+	@echo "  make up             - Start production API"
+	@echo "  make down           - Stop containers"
 	@echo ""
 	@echo "Utilities:"
 	@echo "  make clean          - Clean cache and temporary files"
@@ -34,49 +34,48 @@ deploy-models:
 	@echo "✓ Models deployed!"
 
 dev:
-	@echo "Starting API in development mode (Docker with hot reload)..."
+	@echo "Starting API in DEVELOPMENT mode (hot reload)..."
 	@echo ""
-	docker-compose up --build
+	@ENVIRONMENT=development DEV_VOLUME=rw docker-compose --profile api up --build
 	@echo ""
-	@echo "API stopped. Use 'make down' to cleanup containers."
+	@echo "API stopped."
+
+test:
+	@echo "Running tests (multi-stage build)..."
+	@echo ""
+	docker-compose --profile test build test
+	docker-compose --profile test up --abort-on-container-exit test
+	@echo ""
+	@echo "Cleaning up..."
+	docker-compose --profile test down
+	@echo ""
+	@echo "✓ Tests complete! Coverage: api-service/htmlcov/index.html"
 
 build:
-	@echo "Building production Docker image..."
-	docker-compose build --no-cache
+	@echo "Building PRODUCTION image (after tests)..."
+	docker-compose --profile api build --no-cache api
 	@echo "✓ Production image built!"
 
 up:
-	@echo "Starting production containers..."
-	docker-compose up -d
+	@echo "Starting PRODUCTION API..."
+	@ENVIRONMENT=production DEV_VOLUME=ro docker-compose --profile api up -d
 	@echo ""
-	@echo "✓ API running in production mode!"
+	@echo "✓ API running!"
 	@echo "  URL: http://localhost:8000"
 	@echo "  Docs: http://localhost:8000/docs"
 	@echo ""
 	@echo "View logs: make logs"
 
 down:
-	@echo "Stopping all containers..."
-	docker-compose down
-	@echo "✓ Containers stopped and removed!"
+	@echo "Stopping containers..."
+	docker-compose --profile api down
+	docker-compose --profile test down
+	@echo "✓ Stopped!"
 
 logs:
 	@echo "API logs (Ctrl+C to exit):"
 	@echo ""
-	docker-compose logs -f api
-
-test:
-	@echo "Running tests in Docker container..."
-	@echo ""
-	docker-compose -f docker-compose.test.yml build
-	docker-compose -f docker-compose.test.yml up --abort-on-container-exit
-	@echo ""
-	@echo "Cleaning up..."
-	docker-compose -f docker-compose.test.yml down
-	@echo ""
-	@echo "✓ Tests complete! Coverage: api-service/htmlcov/index.html"
-
-test-docker: test
+	docker-compose --profile api logs -f api
 
 clean:
 	@echo "Cleaning cache and temporary files..."

@@ -1,19 +1,41 @@
 version: '3.8'
 
 services:
+  # ==========================================
+  # Test service - Run tests with coverage
+  # ==========================================
+  test:
+    build:
+      context: ./api-service
+      dockerfile: Dockerfile
+      target: test
+    container_name: ml-sales-api-test
+    profiles: ["test"]
+    volumes:
+      - ./api-service/htmlcov:/app/htmlcov
+    environment:
+      - PYTHONPATH=/app
+      - ENVIRONMENT=test
+    networks:
+      - ml-network
+
+  # ==========================================
+  # API service - Development or Production
+  # ==========================================
   api:
     build:
       context: ./api-service
       dockerfile: Dockerfile
+      target: production
     container_name: ml-sales-api
     ports:
       - "8000:8000"
     volumes:
-      # Hot reload in development
-      - ./api-service/app:/app/app:ro
+      # Mount code only in development
+      - ./api-service/app:/app/app:${DEV_VOLUME:-ro}
     environment:
       - PYTHONUNBUFFERED=1
-      - ENVIRONMENT=development
+      - ENVIRONMENT=${ENVIRONMENT:-production}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
@@ -23,6 +45,7 @@ services:
     networks:
       - ml-network
     restart: unless-stopped
+    profiles: ["api"]
 
 networks:
   ml-network:

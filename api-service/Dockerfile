@@ -1,10 +1,13 @@
-# Production Dockerfile for ML Sales Forecasting API
-FROM python:3.13-slim
+# Multi-stage Dockerfile for ML Sales Forecasting API
 
-# Set working directory
+# ============================================
+# Stage 1: Base - Dependencies
+# ============================================
+FROM python:3.13-slim AS base
+
 WORKDIR /app
 
-# Install system dependencies (including curl for healthcheck)
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     gcc \
     g++ \
@@ -13,14 +16,39 @@ RUN apt-get update && apt-get install -y \
 
 # Copy requirements
 COPY requirements.txt .
-
-# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
+
+
+# ============================================
+# Stage 2: Test - Run tests with coverage
+# ============================================
+FROM base AS test
+
+# Install dev dependencies
+COPY requirements-dev.txt .
+RUN pip install --no-cache-dir -r requirements-dev.txt
 
 # Copy application code
 COPY app/ ./app/
 
-# Copy models
+# Copy tests
+COPY tests/ ./tests/
+COPY pytest.ini .coveragerc ./
+
+# Copy models for testing
+COPY models/ ./models/
+
+# Run tests
+RUN pytest tests/ -v --cov=app --cov-report=term-missing --cov-report=html --cov-fail-under=90
+
+
+# ============================================
+# Stage 3: Production - Clean and minimal
+# ============================================
+FROM base AS production
+
+# Copy only production code (no tests)
+COPY app/ ./app/
 COPY models/ ./models/
 
 # Create non-root user
@@ -31,5 +59,6 @@ USER appuser
 # Expose port
 EXPOSE 8000
 
-# Run application
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Entrypoint
+COPY entrypoint.sh /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
