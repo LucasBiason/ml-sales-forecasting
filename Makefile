@@ -1,90 +1,82 @@
-.PHONY: help install deploy-models run-api test test-docker clean docker-build docker-up docker-down docker-logs docker-test
+.PHONY: help install deploy-models dev build up down logs test test-docker clean
 
 help:
 	@echo "ML Sales Forecasting - Makefile"
 	@echo ""
-	@echo "Local Development:"
-	@echo "  make install        - Install all dev dependencies (notebooks + API)"
+	@echo "Setup:"
+	@echo "  make install        - Install notebook dependencies (venv)"
 	@echo "  make deploy-models  - Copy trained models from notebooks to API"
-	@echo "  make run-api        - Start FastAPI server (local)"
-	@echo "  make test           - Run API tests locally"
-	@echo "  make test-docker    - Run tests in Docker container (CI/CD)"
 	@echo ""
-	@echo "Docker Commands:"
-	@echo "  make docker-build   - Build production Docker image"
-	@echo "  make docker-up      - Start production containers"
-	@echo "  make docker-down    - Stop and remove containers"
-	@echo "  make docker-logs    - Show container logs"
-	@echo "  make docker-test    - Test production API in Docker"
+	@echo "Development (Docker):"
+	@echo "  make dev            - Start API in development mode (hot reload)"
+	@echo "  make logs           - Show API logs (Ctrl+C to exit)"
+	@echo "  make test           - Run tests in Docker container"
+	@echo ""
+	@echo "Production (Docker):"
+	@echo "  make build          - Build production Docker image"
+	@echo "  make up             - Start production containers"
+	@echo "  make down           - Stop and remove containers"
 	@echo ""
 	@echo "Utilities:"
 	@echo "  make clean          - Clean cache and temporary files"
 
 install:
-	@echo "Installing notebook dependencies..."
+	@echo "Installing notebook dependencies (venv only)..."
 	cd notebooks && python -m venv venv && . venv/bin/activate && pip install -r requirements.txt
 	@echo ""
-	@echo "Installing API dev dependencies..."
-	cd api-service && python -m venv venv && . venv/bin/activate && pip install -r requirements-dev.txt
+	@echo "✓ Notebook environment ready!"
 	@echo ""
-	@echo "✓ Dev installation complete!"
+	@echo "NOTE: API runs ONLY in Docker. Use 'make dev' to start."
 
 deploy-models:
 	@echo "Deploying ML models to API..."
 	python scripts/deploy_models.py
 	@echo "✓ Models deployed!"
 
-run-api:
-	@echo "Starting FastAPI server..."
-	@echo "API will be available at: http://localhost:8000"
-	@echo "Docs at: http://localhost:8000/docs"
-	cd api-service && . venv/bin/activate && uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
-
-test:
-	@echo "Running API tests with coverage..."
-	cd api-service && python -m pytest tests/ -v --tb=short
+dev:
+	@echo "Starting API in development mode (Docker with hot reload)..."
 	@echo ""
-	@echo "Coverage report generated in api-service/htmlcov/index.html"
-
-test-docker:
-	@echo "Building test Docker image..."
-	docker-compose -f docker-compose.test.yml build
+	docker-compose up --build
 	@echo ""
-	@echo "Running tests in Docker container..."
-	docker-compose -f docker-compose.test.yml up --abort-on-container-exit
-	@echo ""
-	@echo "Cleaning up test containers..."
-	docker-compose -f docker-compose.test.yml down
-	@echo "✓ Docker tests complete! Coverage report in api-service/htmlcov/"
+	@echo "API stopped. Use 'make down' to cleanup containers."
 
-docker-build:
-	@echo "Building Docker images..."
-	docker-compose build
-	@echo "✓ Images built!"
+build:
+	@echo "Building production Docker image..."
+	docker-compose build --no-cache
+	@echo "✓ Production image built!"
 
-docker-up:
-	@echo "Starting containers with docker-compose..."
+up:
+	@echo "Starting production containers..."
 	docker-compose up -d
 	@echo ""
-	@echo "✓ Containers started!"
-	@echo "API available at: http://localhost:8000"
-	@echo "Docs at: http://localhost:8000/docs"
+	@echo "✓ API running in production mode!"
+	@echo "  URL: http://localhost:8000"
+	@echo "  Docs: http://localhost:8000/docs"
 	@echo ""
-	@echo "Check status with: make docker-logs"
+	@echo "View logs: make logs"
 
-docker-down:
-	@echo "Stopping containers..."
+down:
+	@echo "Stopping all containers..."
 	docker-compose down
-	@echo "✓ Containers stopped!"
+	@echo "✓ Containers stopped and removed!"
 
-docker-logs:
-	@echo "Container logs (Ctrl+C to exit):"
+logs:
+	@echo "API logs (Ctrl+C to exit):"
+	@echo ""
 	docker-compose logs -f api
 
-docker-test:
-	@echo "Testing API in Docker..."
-	@sleep 3
-	@curl -s http://localhost:8000/health | python -m json.tool || echo "API not responding"
+test:
+	@echo "Running tests in Docker container..."
+	@echo ""
+	docker-compose -f docker-compose.test.yml build
+	docker-compose -f docker-compose.test.yml up --abort-on-container-exit
+	@echo ""
+	@echo "Cleaning up..."
+	docker-compose -f docker-compose.test.yml down
+	@echo ""
+	@echo "✓ Tests complete! Coverage: api-service/htmlcov/index.html"
+
+test-docker: test
 
 clean:
 	@echo "Cleaning cache and temporary files..."

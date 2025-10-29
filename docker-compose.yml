@@ -8,12 +8,12 @@ services:
     container_name: ml-sales-api
     ports:
       - "8000:8000"
+    volumes:
+      # Hot reload in development
+      - ./api-service/app:/app/app:ro
     environment:
       - PYTHONUNBUFFERED=1
-      - LOG_LEVEL=INFO
-    volumes:
-      - ./api-service/models:/app/models:ro
-    restart: unless-stopped
+      - ENVIRONMENT=development
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
@@ -21,9 +21,9 @@ services:
       retries: 3
       start_period: 40s
     networks:
-      - ml-sales-network
+      - ml-network
+    restart: unless-stopped
 
 networks:
-  ml-sales-network:
+  ml-network:
     driver: bridge
-
