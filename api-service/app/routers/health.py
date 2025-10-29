@@ -23,6 +23,6 @@ async def health_check() -> HealthResponse:
 
     Returns service status and model loading state.
     """
-    from ..main import forecaster
+    from ..core import forecaster
     health_data = HealthController.get_health_status(forecaster)
     return HealthResponse(**health_data)

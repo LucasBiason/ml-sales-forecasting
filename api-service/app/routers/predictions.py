@@ -28,7 +28,7 @@ async def model_info() -> ModelInfoResponse:
 
     Returns metadata about the trained model.
     """
-    from ..main import forecaster
+    from ..core import forecaster
     info = PredictionController.get_model_info(forecaster)
     return ModelInfoResponse(**info)
 
@@ -57,7 +57,7 @@ async def predict_price(property_data: PropertyInput) -> PredictionResponse:
     Raises:
         HTTPException: If prediction fails (handled by controller)
     """
-    from ..main import forecaster
+    from ..core import forecaster
     data = property_data.model_dump()
     result = PredictionController.predict_price(forecaster, data)
     return PredictionResponse(**result)
