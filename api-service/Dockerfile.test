@@ -1,0 +1,30 @@
+# Dockerfile for CI/CD tests
+# This image includes tests and dev dependencies
+FROM python:3.13-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements
+COPY requirements.txt requirements-dev.txt ./
+
+# Install Python dependencies (production + dev)
+RUN pip install --no-cache-dir -r requirements-dev.txt
+
+# Copy application code
+COPY app/ ./app/
+
+# Copy tests
+COPY tests/ ./tests/
+COPY pytest.ini .coveragerc ./
+
+# Copy models (for testing)
+COPY models/ ./models/
+
+# Run tests with coverage
+CMD ["pytest", "tests/", "-v", "--cov=app", "--cov-report=term-missing", "--cov-report=html", "--cov-fail-under=100"]
+

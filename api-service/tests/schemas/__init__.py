@@ -1,0 +1,4 @@
+"""
+Tests for schemas module.
+"""
+
