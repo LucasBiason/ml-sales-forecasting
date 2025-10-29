@@ -8,7 +8,7 @@ from pydantic import ValidationError
 from app.schemas.prediction_response import (
     ConfidenceInterval,
     ModelInfo,
-    PredictionResponse
+    PredictionResponse,
 )
 
 
@@ -23,11 +23,7 @@ def test_confidence_interval_valid():
 
 def test_model_info_valid():
     """Test valid model info."""
-    data = {
-        "type": "RandomForest",
-        "n_estimators": 100,
-        "expected_r2": 0.11
-    }
+    data = {"type": "RandomForest", "n_estimators": 100, "expected_r2": 0.11}
     info = ModelInfo(**data)
 
     assert info.type == "RandomForest"
@@ -44,8 +40,8 @@ def test_prediction_response_valid():
         "model_info": {
             "type": "RandomForest",
             "n_estimators": 100,
-            "expected_r2": 0.11
-        }
+            "expected_r2": 0.11,
+        },
     }
 
     response = PredictionResponse(**data)
@@ -66,10 +62,9 @@ def test_prediction_response_missing_field():
         "model_info": {
             "type": "RandomForest",
             "n_estimators": 100,
-            "expected_r2": 0.11
-        }
+            "expected_r2": 0.11,
+        },
     }
 
     with pytest.raises(ValidationError):
         PredictionResponse(**data)
-

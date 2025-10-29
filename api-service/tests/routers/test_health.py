@@ -2,8 +2,9 @@
 Unit tests for health router.
 """
 
+from unittest.mock import patch
+
 import pytest
-from unittest.mock import patch, MagicMock
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -53,4 +54,3 @@ def test_health_check_unloaded(mock_forecaster, client):
     assert response.status_code == 200
     data = response.json()
     assert data["model_loaded"] is False
-

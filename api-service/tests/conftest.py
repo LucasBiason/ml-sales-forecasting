@@ -2,13 +2,10 @@
 Pytest configuration and shared fixtures.
 """
 
-import pytest
-import joblib
-import numpy as np
-import pandas as pd
-from pathlib import Path
 from unittest.mock import MagicMock, Mock
-from sklearn.ensemble import RandomForestRegressor
+
+import numpy as np
+import pytest
 
 from app.models.sales_forecaster import SalesForecaster
 
@@ -16,7 +13,7 @@ from app.models.sales_forecaster import SalesForecaster
 @pytest.fixture
 def mock_model():
     """Create a mock Random Forest model."""
-    model = MagicMock(spec=RandomForestRegressor)
+    model = MagicMock()
     model.n_estimators = 100
     model.estimators_ = [MagicMock() for _ in range(5)]
     for tree in model.estimators_:
@@ -28,11 +25,7 @@ def mock_model():
 @pytest.fixture
 def mock_label_encoders():
     """Create mock label encoders."""
-    encoders = {
-        "property_type": Mock(),
-        "old_new": Mock(),
-        "duration": Mock()
-    }
+    encoders = {"property_type": Mock(), "old_new": Mock(), "duration": Mock()}
     encoders["property_type"].transform.return_value = np.array([0])
     encoders["old_new"].transform.return_value = np.array([1])
     encoders["duration"].transform.return_value = np.array([0])
@@ -46,13 +39,9 @@ def mock_target_encodings():
         "county_map": {
             "GREATER LONDON": 450000.0,
             "SURREY": 420000.0,
-            "UNKNOWN": 300000.0
+            "UNKNOWN": 300000.0,
         },
-        "postcode_map": {
-            "SW1A": 500000.0,
-            "SW1": 480000.0,
-            "UNKNOWN": 300000.0
-        }
+        "postcode_map": {"SW1A": 500000.0, "SW1": 480000.0, "UNKNOWN": 300000.0},
     }
 
 
@@ -66,13 +55,13 @@ def mock_metadata():
             "postcode_region_enc",
             "old_new_enc",
             "duration_enc",
-            "year"
+            "year",
         ],
         "model_type": "RandomForest",
         "training_samples": 99831,
         "cv_r2_mean": 0.4390,
         "expected_r2": 0.11,
-        "trained_date": "2024-01-15"
+        "trained_date": "2024-01-15",
     }
 
 
@@ -85,12 +74,14 @@ def sample_property_data():
         "duration": "F",
         "county": "GREATER LONDON",
         "postcode": "SW1A 1AA",
-        "year": 2024
+        "year": 2024,
     }
 
 
 @pytest.fixture
-def forecaster_mock(mock_model, mock_label_encoders, mock_target_encodings, mock_metadata):
+def forecaster_mock(
+    mock_model, mock_label_encoders, mock_target_encodings, mock_metadata
+):
     """Create a SalesForecaster instance with mocked dependencies."""
     forecaster = SalesForecaster(models_dir="tests/fixtures/models")
     forecaster.model = mock_model
@@ -107,4 +98,3 @@ def forecaster_unloaded():
     forecaster = SalesForecaster(models_dir="tests/fixtures/models")
     forecaster.is_loaded = False
     return forecaster
-

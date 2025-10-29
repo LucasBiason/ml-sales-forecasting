@@ -2,7 +2,6 @@
 Unit tests for HealthController.
 """
 
-import pytest
 from datetime import datetime
 from unittest.mock import MagicMock
 
@@ -33,4 +32,3 @@ def test_get_health_status_unloaded():
     assert result["status"] == "healthy"
     assert result["model_loaded"] is False
     assert result["version"] == "1.0.0"
-

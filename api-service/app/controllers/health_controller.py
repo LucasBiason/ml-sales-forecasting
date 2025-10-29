@@ -3,7 +3,7 @@ Health controller - system health and status.
 """
 
 from datetime import datetime
-from typing import Dict, Any
+from typing import Any, Dict
 
 
 class HealthController:
@@ -24,5 +24,5 @@ class HealthController:
             "status": "healthy",
             "timestamp": datetime.now(),
             "model_loaded": forecaster.is_loaded,
-            "version": "1.0.0"
+            "version": "1.0.0",
         }

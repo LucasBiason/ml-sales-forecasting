@@ -10,37 +10,24 @@ class PropertyInput(BaseModel):
 
     property_type: str = Field(
         ...,
-        description="Property type: D=Detached, S=Semi-detached, T=Terraced, F=Flat, O=Other",
-        pattern="^[DSTFO]$"
+        description=(
+            "Property type: D=Detached, S=Semi-detached, " "T=Terraced, F=Flat, O=Other"
+        ),
+        pattern="^[DSTFO]$",
     )
     old_new: str = Field(
-        ...,
-        description="New or existing: Y=New, N=Existing",
-        pattern="^[YN]$"
+        ..., description="New or existing: Y=New, N=Existing", pattern="^[YN]$"
     )
     duration: str = Field(
         ...,
         description="Tenure type: F=Freehold, L=Leasehold, U=Unknown",
-        pattern="^[FLU]$"
+        pattern="^[FLU]$",
     )
-    county: str = Field(
-        ...,
-        description="Property county",
-        min_length=2,
-        max_length=50
-    )
+    county: str = Field(..., description="Property county", min_length=2, max_length=50)
     postcode: str = Field(
-        ...,
-        description="Full postcode (e.g. SW1A 1AA)",
-        min_length=5,
-        max_length=10
+        ..., description="Full postcode (e.g. SW1A 1AA)", min_length=5, max_length=10
     )
-    year: int = Field(
-        ...,
-        description="Sale year",
-        ge=1995,
-        le=2030
-    )
+    year: int = Field(..., description="Sale year", ge=1995, le=2030)
 
     @field_validator("postcode")
     @classmethod
@@ -63,7 +50,7 @@ class PropertyInput(BaseModel):
                     "duration": "F",
                     "county": "GREATER LONDON",
                     "postcode": "SW1A 1AA",
-                    "year": 2024
+                    "year": 2024,
                 }
             ]
         }

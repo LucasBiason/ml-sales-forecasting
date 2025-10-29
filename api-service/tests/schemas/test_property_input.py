@@ -16,7 +16,7 @@ def test_valid_property_input():
         "duration": "F",
         "county": "GREATER LONDON",
         "postcode": "SW1A 1AA",
-        "year": 2024
+        "year": 2024,
     }
 
     input_obj = PropertyInput(**data)
@@ -37,7 +37,7 @@ def test_invalid_property_type():
         "duration": "F",
         "county": "GREATER LONDON",
         "postcode": "SW1A 1AA",
-        "year": 2024
+        "year": 2024,
     }
 
     with pytest.raises(ValidationError) as exc_info:
@@ -57,7 +57,7 @@ def test_valid_property_types():
             "duration": "F",
             "county": "GREATER LONDON",
             "postcode": "SW1A 1AA",
-            "year": 2024
+            "year": 2024,
         }
 
         input_obj = PropertyInput(**data)
@@ -72,7 +72,7 @@ def test_invalid_old_new():
         "duration": "F",
         "county": "GREATER LONDON",
         "postcode": "SW1A 1AA",
-        "year": 2024
+        "year": 2024,
     }
 
     with pytest.raises(ValidationError):
@@ -87,7 +87,7 @@ def test_invalid_duration():
         "duration": "X",  # Invalid: must be F, L or U
         "county": "GREATER LONDON",
         "postcode": "SW1A 1AA",
-        "year": 2024
+        "year": 2024,
     }
 
     with pytest.raises(ValidationError):
@@ -102,7 +102,7 @@ def test_county_too_short():
         "duration": "F",
         "county": "A",  # Too short
         "postcode": "SW1A 1AA",
-        "year": 2024
+        "year": 2024,
     }
 
     with pytest.raises(ValidationError):
@@ -117,7 +117,7 @@ def test_county_too_long():
         "duration": "F",
         "county": "A" * 51,  # Too long
         "postcode": "SW1A 1AA",
-        "year": 2024
+        "year": 2024,
     }
 
     with pytest.raises(ValidationError):
@@ -132,7 +132,7 @@ def test_postcode_too_short():
         "duration": "F",
         "county": "GREATER LONDON",
         "postcode": "SW1",  # Too short
-        "year": 2024
+        "year": 2024,
     }
 
     with pytest.raises(ValidationError):
@@ -147,7 +147,7 @@ def test_postcode_too_long():
         "duration": "F",
         "county": "GREATER LONDON",
         "postcode": "SW1A 1AA EXTRA",  # Too long
-        "year": 2024
+        "year": 2024,
     }
 
     with pytest.raises(ValidationError):
@@ -162,7 +162,7 @@ def test_year_below_minimum():
         "duration": "F",
         "county": "GREATER LONDON",
         "postcode": "SW1A 1AA",
-        "year": 1990  # Below minimum
+        "year": 1990,  # Below minimum
     }
 
     with pytest.raises(ValidationError):
@@ -177,7 +177,7 @@ def test_year_above_maximum():
         "duration": "F",
         "county": "GREATER LONDON",
         "postcode": "SW1A 1AA",
-        "year": 2040  # Above maximum
+        "year": 2040,  # Above maximum
     }
 
     with pytest.raises(ValidationError):
@@ -192,7 +192,7 @@ def test_postcode_normalization():
         "duration": "F",
         "county": "GREATER LONDON",
         "postcode": "  sw1a 1aa  ",  # Lowercase with spaces
-        "year": 2024
+        "year": 2024,
     }
 
     input_obj = PropertyInput(**data)
@@ -208,7 +208,7 @@ def test_county_normalization():
         "duration": "F",
         "county": "  greater london  ",  # Lowercase with spaces
         "postcode": "SW1A 1AA",
-        "year": 2024
+        "year": 2024,
     }
 
     input_obj = PropertyInput(**data)
@@ -224,9 +224,8 @@ def test_missing_required_field():
         "duration": "F",
         "county": "GREATER LONDON",
         "postcode": "SW1A 1AA",
-        "year": 2024
+        "year": 2024,
     }
 
     with pytest.raises(ValidationError):
         PropertyInput(**data)
-

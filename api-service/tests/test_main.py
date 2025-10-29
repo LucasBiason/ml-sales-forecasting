@@ -58,4 +58,3 @@ def test_redoc_endpoint(client):
     """Test ReDoc endpoint."""
     response = client.get("/redoc")
     assert response.status_code == 200
-

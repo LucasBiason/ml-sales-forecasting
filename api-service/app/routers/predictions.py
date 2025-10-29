@@ -4,14 +4,13 @@ Prediction router (View layer).
 
 from fastapi import APIRouter
 
-from ..schemas import (
-    PropertyInput,
-    PredictionResponse,
-    ModelInfoResponse,
-    ErrorResponse
-)
 from ..controllers import PredictionController
-
+from ..schemas import (
+    ErrorResponse,
+    ModelInfoResponse,
+    PredictionResponse,
+    PropertyInput,
+)
 
 router = APIRouter()
 
@@ -20,7 +19,7 @@ router = APIRouter()
     "/model/info",
     response_model=ModelInfoResponse,
     summary="Model Information",
-    description="Get detailed information about the loaded model"
+    description="Get detailed information about the loaded model",
 )
 async def model_info() -> ModelInfoResponse:
     """
@@ -29,6 +28,7 @@ async def model_info() -> ModelInfoResponse:
     Returns metadata about the trained model.
     """
     from ..core import forecaster
+
     info = PredictionController.get_model_info(forecaster)
     return ModelInfoResponse(**info)
 
@@ -41,8 +41,8 @@ async def model_info() -> ModelInfoResponse:
     responses={
         200: {"description": "Prediction successful"},
         400: {"model": ErrorResponse, "description": "Invalid input data"},
-        500: {"model": ErrorResponse, "description": "Internal server error"}
-    }
+        500: {"model": ErrorResponse, "description": "Internal server error"},
+    },
 )
 async def predict_price(property_data: PropertyInput) -> PredictionResponse:
     """
@@ -58,6 +58,7 @@ async def predict_price(property_data: PropertyInput) -> PredictionResponse:
         HTTPException: If prediction fails (handled by controller)
     """
     from ..core import forecaster
+
     data = property_data.model_dump()
     result = PredictionController.predict_price(forecaster, data)
     return PredictionResponse(**result)

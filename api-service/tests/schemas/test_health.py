@@ -2,7 +2,6 @@
 Unit tests for HealthResponse schema.
 """
 
-import pytest
 from datetime import datetime
 
 from app.schemas.health import HealthResponse
@@ -14,7 +13,7 @@ def test_health_response_valid():
         "status": "healthy",
         "timestamp": datetime.now(),
         "model_loaded": True,
-        "version": "1.0.0"
+        "version": "1.0.0",
     }
 
     response = HealthResponse(**data)
@@ -31,10 +30,9 @@ def test_health_response_model_unloaded():
         "status": "healthy",
         "timestamp": datetime.now(),
         "model_loaded": False,
-        "version": "1.0.0"
+        "version": "1.0.0",
     }
 
     response = HealthResponse(**data)
 
     assert response.model_loaded is False
-

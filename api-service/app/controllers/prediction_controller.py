@@ -2,7 +2,8 @@
 Prediction controller - ML prediction operations.
 """
 
-from typing import Dict, Any
+from typing import Any, Dict
+
 from fastapi import HTTPException, status
 
 
@@ -40,7 +41,7 @@ class PredictionController:
         if not forecaster.is_loaded:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Model not loaded. Please try again in a few seconds."
+                detail="Model not loaded. Please try again in a few seconds.",
             )
 
         try:
@@ -50,10 +51,10 @@ class PredictionController:
         except ValueError as e:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Invalid data: {str(e)}"
+                detail=f"Invalid data: {str(e)}",
             )
         except Exception as e:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Prediction error: {str(e)}"
+                detail=f"Prediction error: {str(e)}",
             )

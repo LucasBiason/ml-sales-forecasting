@@ -24,9 +24,9 @@ jobs:
     
     - name: Build and run tests (multi-stage)
       run: |
-        docker-compose --profile test build test
-        docker-compose --profile test up --abort-on-container-exit test
-        EXIT_CODE=$(docker-compose --profile test ps -q test | xargs docker inspect -f '{{ .State.ExitCode }}')
+        docker compose --profile test build test
+        docker compose --profile test up --abort-on-container-exit test
+        EXIT_CODE=$(docker compose --profile test ps -q test | xargs docker inspect -f '{{ .State.ExitCode }}')
         if [ "$EXIT_CODE" != "0" ]; then
           echo "❌ Tests failed or coverage below 90%"
           exit 1
@@ -35,7 +35,7 @@ jobs:
     - name: Cleanup test containers
       if: always()
       run: |
-        docker-compose --profile test down
+        docker compose --profile test down
     
     - name: Upload coverage report
       uses: actions/upload-artifact@v4

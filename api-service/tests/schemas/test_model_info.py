@@ -2,8 +2,6 @@
 Unit tests for ModelInfoResponse schema.
 """
 
-import pytest
-
 from app.schemas.model_info import ModelInfoResponse
 
 
@@ -17,7 +15,7 @@ def test_model_info_response_loaded():
         "training_samples": 99831,
         "cv_r2_mean": 0.4390,
         "expected_r2": 0.11,
-        "trained_date": "2024-01-15"
+        "trained_date": "2024-01-15",
     }
 
     response = ModelInfoResponse(**data)
@@ -42,15 +40,10 @@ def test_model_info_response_unloaded():
 
 def test_model_info_response_optional_fields():
     """Test model info response with some optional fields."""
-    data = {
-        "loaded": True,
-        "model_type": "RandomForest",
-        "n_estimators": 100
-    }
+    data = {"loaded": True, "model_type": "RandomForest", "n_estimators": 100}
 
     response = ModelInfoResponse(**data)
 
     assert response.loaded is True
     assert response.features is None
     assert response.cv_r2_mean is None
-

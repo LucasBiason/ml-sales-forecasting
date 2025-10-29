@@ -5,6 +5,7 @@ Handles model loading on startup and cleanup on shutdown.
 """
 
 import logging
+
 from ..models import SalesForecaster
 
 logger = logging.getLogger(__name__)
@@ -28,4 +29,3 @@ async def startup_event():
 async def shutdown_event():
     """Clean up resources on shutdown."""
     logger.info("Shutting down API...")
-

@@ -3,11 +3,9 @@ Unit tests for PredictionController.
 """
 
 import pytest
-from unittest.mock import MagicMock
 from fastapi import HTTPException, status
 
 from app.controllers.prediction_controller import PredictionController
-from app.models.sales_forecaster import SalesForecaster
 
 
 def test_get_model_info_success(forecaster_mock):
@@ -58,4 +56,3 @@ def test_predict_price_generic_error(forecaster_mock, sample_property_data):
 
     assert exc_info.value.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
     assert "Prediction error" in exc_info.value.detail
-

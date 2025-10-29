@@ -2,8 +2,9 @@
 Prediction response schemas.
 """
 
-from pydantic import BaseModel, Field
 from typing import List
+
+from pydantic import BaseModel, Field
 
 
 class ConfidenceInterval(BaseModel):
@@ -25,7 +26,9 @@ class PredictionResponse(BaseModel):
     """Prediction response schema."""
 
     predicted_price: float = Field(..., description="Predicted price in £")
-    confidence_interval: ConfidenceInterval = Field(..., description="Confidence interval")
+    confidence_interval: ConfidenceInterval = Field(
+        ..., description="Confidence interval"
+    )
     features_used: List[str] = Field(..., description="Features used in the model")
     model_info: ModelInfo = Field(..., description="Model information")
 
@@ -34,23 +37,20 @@ class PredictionResponse(BaseModel):
             "examples": [
                 {
                     "predicted_price": 425000.50,
-                    "confidence_interval": {
-                        "min": 380000.00,
-                        "max": 470000.00
-                    },
+                    "confidence_interval": {"min": 380000.00, "max": 470000.00},
                     "features_used": [
                         "property_type_enc",
                         "county_enc",
                         "postcode_region_enc",
                         "old_new_enc",
                         "duration_enc",
-                        "year"
+                        "year",
                     ],
                     "model_info": {
                         "type": "RandomForest",
                         "n_estimators": 100,
-                        "expected_r2": 0.11
-                    }
+                        "expected_r2": 0.11,
+                    },
                 }
             ]
         }

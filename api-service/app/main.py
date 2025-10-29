@@ -4,17 +4,17 @@ FastAPI Application - ML Sales Forecasting API.
 API for UK property price prediction using Random Forest.
 """
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 import logging
 
-from .core import startup_event, shutdown_event
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from .core import shutdown_event, startup_event
 from .routers import health_router, predictions_router
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 
 # Initialize FastAPI
@@ -23,7 +23,7 @@ app = FastAPI(
     description="API for UK property price prediction using Random Forest",
     version="1.0.0",
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
 )
 
 # Configure CORS

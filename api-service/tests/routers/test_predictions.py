@@ -2,8 +2,9 @@
 Unit tests for predictions router.
 """
 
+from unittest.mock import patch
+
 import pytest
-from unittest.mock import patch, MagicMock
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -24,7 +25,7 @@ def test_model_info_loaded(mock_forecaster, client):
         "model_type": "RandomForest",
         "n_estimators": 100,
         "features": ["property_type_enc", "county_enc"],
-        "expected_r2": 0.11
+        "expected_r2": 0.11,
     }
 
     response = client.get("/api/v1/model/info")
@@ -60,8 +61,8 @@ def test_predict_success(mock_forecaster, client):
         "model_info": {
             "type": "RandomForest",
             "n_estimators": 100,
-            "expected_r2": 0.11
-        }
+            "expected_r2": 0.11,
+        },
     }
 
     payload = {
@@ -70,7 +71,7 @@ def test_predict_success(mock_forecaster, client):
         "duration": "F",
         "county": "GREATER LONDON",
         "postcode": "SW1A 1AA",
-        "year": 2024
+        "year": 2024,
     }
 
     response = client.post("/api/v1/predict", json=payload)
@@ -94,7 +95,7 @@ def test_predict_invalid_property_type(mock_forecaster, client):
         "duration": "F",
         "county": "GREATER LONDON",
         "postcode": "SW1A 1AA",
-        "year": 2024
+        "year": 2024,
     }
 
     response = client.post("/api/v1/predict", json=payload)
@@ -114,7 +115,7 @@ def test_predict_invalid_year(mock_forecaster, client):
         "duration": "F",
         "county": "GREATER LONDON",
         "postcode": "SW1A 1AA",
-        "year": 1990  # Invalid: must be >= 1995
+        "year": 1990,  # Invalid: must be >= 1995
     }
 
     response = client.post("/api/v1/predict", json=payload)
@@ -148,7 +149,7 @@ def test_predict_model_not_loaded(mock_forecaster, client):
         "duration": "F",
         "county": "GREATER LONDON",
         "postcode": "SW1A 1AA",
-        "year": 2024
+        "year": 2024,
     }
 
     response = client.post("/api/v1/predict", json=payload)
@@ -165,7 +166,11 @@ def test_predict_postcode_normalization(mock_forecaster, client):
         "predicted_price": 400000.0,
         "confidence_interval": {"min": 350000.0, "max": 450000.0},
         "features_used": [],
-        "model_info": {"type": "RandomForest", "n_estimators": 100, "expected_r2": 0.11}
+        "model_info": {
+            "type": "RandomForest",
+            "n_estimators": 100,
+            "expected_r2": 0.11,
+        },
     }
 
     payload = {
@@ -174,10 +179,9 @@ def test_predict_postcode_normalization(mock_forecaster, client):
         "duration": "F",
         "county": "greater london",  # Should be normalized to uppercase
         "postcode": "  sw1a 1aa  ",  # Should be normalized
-        "year": 2024
+        "year": 2024,
     }
 
     response = client.post("/api/v1/predict", json=payload)
 
     assert response.status_code == 200
-

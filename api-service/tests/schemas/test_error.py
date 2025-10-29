@@ -2,7 +2,6 @@
 Unit tests for ErrorResponse schema.
 """
 
-import pytest
 from datetime import datetime
 
 from app.schemas.error import ErrorResponse
@@ -10,10 +9,7 @@ from app.schemas.error import ErrorResponse
 
 def test_error_response_valid():
     """Test valid error response."""
-    data = {
-        "detail": "Invalid property type",
-        "error_type": "ValidationError"
-    }
+    data = {"detail": "Invalid property type", "error_type": "ValidationError"}
 
     response = ErrorResponse(**data)
 
@@ -28,10 +24,9 @@ def test_error_response_with_timestamp():
     data = {
         "detail": "Model not loaded",
         "error_type": "ServiceError",
-        "timestamp": now
+        "timestamp": now,
     }
 
     response = ErrorResponse(**data)
 
     assert response.timestamp == now
-
