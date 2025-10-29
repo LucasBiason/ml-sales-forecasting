@@ -35,8 +35,8 @@ COPY app/ ./app/
 COPY tests/ ./tests/
 COPY pytest.ini .coveragerc ./
 
-# Copy models for testing
-COPY models/ ./models/
+# Copy models directory (may be empty in CI)
+COPY models ./models
 
 # Copy entrypoint
 COPY --chmod=755 entrypoint.sh /entrypoint.sh

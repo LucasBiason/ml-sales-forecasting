@@ -31,6 +31,7 @@ check_models() {
   if [ ! -f "./models/final_model.joblib" ]; then
     echo "⚠️  WARNING: Model files not found in ./models/"
     echo "   Please run 'make deploy-models' first"
+    echo "   (This is expected in CI/CD - tests use mocks)"
     return 1
   fi
   echo "✓ Model files found"

@@ -16,6 +16,7 @@ htmlcov/
 
 # Models (too large for git)
 models/*.joblib
+!models/.gitkeep
 
 # IDE
 .vscode/

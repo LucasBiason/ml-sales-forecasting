@@ -1,14 +1,10 @@
-name: CI/CD - Tests, Coverage & Deploy
+name: CI - Tests & Build Validation
 
 on:
   push:
     branches: [ master, develop ]
   pull_request:
     branches: [ master, develop ]
-
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   test:
@@ -58,68 +54,37 @@ jobs:
         path: api-service/htmlcov/
         retention-days: 7
 
-  build-and-push:
-    name: Build & Push Docker Image
+  build-images:
+    name: Build Docker Images
     runs-on: ubuntu-latest
     needs: test
     if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
-    
-    permissions:
-      contents: read
-      packages: write
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: Log in to GitHub Container Registry
-      uses: docker/login-action@v3
-      with:
-        registry: ${{ env.REGISTRY }}
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
     
-    - name: Extract metadata
-      id: meta
-      uses: docker/metadata-action@v5
-      with:
-        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-        tags: |
-          type=ref,event=branch
-          type=sha,prefix={{branch}}-
-          type=raw,value=latest,enable={{is_default_branch}}
-    
-    - name: Build and push Docker image
-      uses: docker/build-push-action@v5
-      with:
-        context: ./api-service
-        file: ./api-service/Dockerfile
-        target: production
-        push: true
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
-
-  deploy:
-    name: Deploy to Production
-    runs-on: ubuntu-latest
-    needs: build-and-push
-    if: github.ref == 'refs/heads/master'
-    
-    steps:
-    - name: Deploy notification
+    - name: Build API image (validation only)
       run: |
-        echo "✅ Tests passed (coverage ≥ 90%)"
-        echo "✅ Docker image built and pushed"
-        echo "🚀 Ready for deployment!"
-        echo ""
-        echo "Image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
+        cd api-service
+        docker build --target production -t ml-sales-api:${{ github.sha }} .
+        echo "✅ API image built successfully"
     
-    # Adicione aqui steps de deploy específicos do seu ambiente
-    # Exemplo: deploy para Render, AWS, GCP, etc.
-    
-    - name: Deployment success
+    - name: Build Frontend image
       run: |
-        echo "✅ Deployment completed successfully!"
+        cd frontend
+        docker build -t ml-sales-frontend:${{ github.sha }} .
+        echo "✅ Frontend image built successfully"
+    
+    - name: Build summary
+      run: |
+        echo "## Build Summary" >> $GITHUB_STEP_SUMMARY
+        echo "✅ Tests passed (coverage ≥ 90%)" >> $GITHUB_STEP_SUMMARY
+        echo "✅ API image built" >> $GITHUB_STEP_SUMMARY
+        echo "✅ Frontend image built" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Note:** No deployment configured (requires hosting setup)" >> $GITHUB_STEP_SUMMARY
 
